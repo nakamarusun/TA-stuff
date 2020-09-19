@@ -2,8 +2,11 @@ import pygame
 import pygame.event
 import pygame.display
 import object_manager
+import pygame.time
 
 import util
+
+from time import time
 
 pygame.display.set_caption("Starfield")
 
@@ -11,6 +14,9 @@ pygame.display.set_caption("Starfield")
 pygame.init()
 
 while 1:
+    # Records the first delta
+    begin_time = time()
+
     # Loads the events to a local var
     events = pygame.event.get()
 
@@ -31,5 +37,14 @@ while 1:
     # Updates all the objects
     object_manager.update_objects()
 
+    # Draws fps
+    util.draw_fps()
+
     # Updates display buffer
     pygame.display.flip()
+
+    # Updates delta variable
+    util.delta = (time() - begin_time) * 1000
+
+    # Wait for milliseconds to FPS lock
+    pygame.time.delay(round((1/util.fps_lock * 1000) - util.delta))

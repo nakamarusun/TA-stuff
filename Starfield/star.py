@@ -20,9 +20,8 @@ class Star_Manager:
             # Do the action
             self.star_list.append(Star())
             # Restart timer
-            self.star_timer = get_milli() + random.randint(2, 8)
+            self.star_timer = get_milli() + random.randint(1, 2)
 
-        
         counter = 0
         pop_list = []
         # Draws all of the star in the list
@@ -55,6 +54,10 @@ class Star_Manager:
 
 class Star:
 
+    max_size = 5
+    max_speed = 0.035
+    min_speed = 0.005
+
     def __init__(self):
         super().__init__()
 
@@ -62,9 +65,8 @@ class Star:
         mid = get_middle_res()
         self.coords = [random.randint(-resolution[0]/2, resolution[0]/2), random.randint(-resolution[1]/2, resolution[1]/2)]
         self.size = abs(self.coords[0]/mid[0]) + abs(self.coords[1]/mid[1]) * 5
-        self.speed = random.random() * 0.005
-        self.cur_speed = 1.005 + self.speed
+        self.speed = 1 + Star.min_speed + (random.random() * Star.max_speed)
 
     def step(self):
-        self.coords = [ i * self.cur_speed for i in self.coords ]
+        self.coords = [ i * self.speed for i in self.coords ]
         self.size += 0.005
