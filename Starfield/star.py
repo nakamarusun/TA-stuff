@@ -8,62 +8,6 @@ import pygame.gfxdraw
 
 class Star_Manager:
 
-    def __init__(self):
-        super().__init__()
-
-        # Star list
-        self.star_list = []
-        self.star_timer = 0
-
-    def step(self):
-
-        # Simple timer functionality
-        if (self.star_timer < util.get_milli()):
-            # Do the action
-            self.star_list.append(Star())
-            # Restart timer
-            self.star_timer = util.get_milli() + random.randint(1, 2)
-
-        counter = 0
-        pop_list = []
-        # Draws all of the star in the list
-        for star in self.star_list:
-            # Updates the star function
-            star.step()
-
-            # Draws the stars appended with half of resolution
-            # Not anti-aliased
-            if (star.size < 1):
-                pygame.gfxdraw.pixel(util.mainSurface, *[ int(i + j) for i, j in zip(star.coords, util.get_middle_res()) ], (255, 255, 255))
-            else:
-                # pygame.draw.circle(mainSurface, (255, 255, 255), [ int(i + j) for i, j in zip(star.coords, get_middle_res()) ], ceil(star.size))
-                rect = [ int(i + j) for i, j in zip(star.coords, util.get_middle_res()) ]
-                pygame.draw.rect(util.mainSurface, (255, 255, 255), [rect, [ceil(star.size), ceil(star.size)]] )
-
-            # Anti-Aliased
-            # pygame.gfxdraw.aacircle(mainSurface, *[ int(i + j) for i, j in zip(star.coords, get_middle_res()) ], star.size, (255, 255, 255))
-            # pygame.gfxdraw.filled_circle(mainSurface, *[ int(i + j) for i, j in zip(star.coords, get_middle_res()) ], star.size, (255, 255, 255))
-
-            # If object is out of bounds, delete it.
-            mid = util.get_middle_res()
-            if (abs(star.coords[0]) > mid[0] or abs(star.coords[1]) > mid[1]):
-                pop_list.append(counter - len(pop_list))
-
-            counter += 1
-
-        for i in pop_list:
-            self.star_list.pop(i)
-
-        # Detects keypress in keyboard to increase speed.
-        for ev in util.events:
-            if (ev.type == pygame.KEYDOWN):
-                if (ev.key == pygame.K_UP):
-                    Star.max_speed += 0.001
-                if (ev.key == pygame.K_DOWN):
-                    Star.max_speed -= 0.001
-
-class Star:
-
     max_size = 5
     max_speed = 0.035
     min_speed = 0.005
@@ -71,12 +15,56 @@ class Star:
     def __init__(self):
         super().__init__()
 
-        # Initial Variables
-        mid = util.get_middle_res()
-        self.coords = [random.randint(-util.resolution[0]//2, util.resolution[0]//2), random.randint(-util.resolution[1]//2, util.resolution[1]//2)]
-        self.size = abs(self.coords[0]/mid[0]) + abs(self.coords[1]/mid[1]) * 5
-        self.speed = 1 + Star.min_speed + (random.random() * Star.max_speed)
+        # Star list
+        self.star_list = [] # This is list inside of list, [[x, y, speed, size], ...]
+        self.star_timer = 0
 
     def step(self):
-        self.coords = [ i * self.speed for i in self.coords ]
-        self.size += 0.005
+
+        mid = util.get_middle_res()
+
+        # Simple timer functionality
+        if (self.star_timer < util.get_milli()):
+            # Coords
+            coords = [random.randint(-util.resolution[0]//2, util.resolution[0]//2), random.randint(-util.resolution[1]//2, util.resolution[1]//2)]
+            # Append a new star in the array
+            self.star_list.append([
+                *coords,
+                1 + Star_Manager.min_speed + (random.random() * Star_Manager.max_speed),
+                abs(coords[0]/mid[0]) + abs(coords[1]/mid[1]) * 5
+            ])
+            # Restart timer
+            self.star_timer = util.get_milli() + random.randint(1, 2)
+
+        counter = 0 # Counter to count how many items has been iterated.
+        pop_list = [] # List of objects that need to be deleted from the list.
+
+        # Draws all of the star in the list
+        for star in self.star_list:
+            # Updates the star function
+            star[0] *= star[2]
+            star[1] *= star[2]
+            star[3] += 0.005
+
+            # Draws the stars appended with half of resolution
+            # Not anti-aliased
+            rect = [ int(i + j) for i, j in zip([star[0], star[1]], util.get_middle_res()) ]
+            pygame.draw.rect(util.mainSurface, (255, 255, 255), [rect, [ceil(star[3]), ceil(star[3])]] )
+
+            # If object is out of the screen, delete it.
+            if (abs(star[0]) > mid[0] or abs(star[1]) > mid[1]):
+                pop_list.append(counter - len(pop_list))
+
+            counter += 1
+
+        # Remove everything in the pop list
+        for i in pop_list:
+            self.star_list.pop(i)
+
+        # Detects keypress in keyboard to increase speed.
+        for ev in util.events:
+            if (ev.type == pygame.KEYDOWN):
+                if (ev.key == pygame.K_UP):
+                    Star_Manager.max_speed += 0.001
+                if (ev.key == pygame.K_DOWN):
+                    Star_Manager.max_speed -= 0.001
