@@ -18,9 +18,9 @@ while 1:
     begin_time = time()
 
     # Loads the events to a local var
-    events = pygame.event.get()
+    util.events = pygame.event.get()
 
-    for ev in events:
+    for ev in util.events:
         # Detects for quitting
         if ev.type == pygame.QUIT:
             pygame.quit()

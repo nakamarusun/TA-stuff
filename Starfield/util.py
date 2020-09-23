@@ -5,7 +5,7 @@ from time import time
 
 pygame.font.init()
 
-events = None
+events = []
 resolution = (800, 600)
 mainSurface = pygame.display.set_mode(resolution, pygame.RESIZABLE)
 fps_lock = 60

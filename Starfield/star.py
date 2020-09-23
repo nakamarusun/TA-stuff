@@ -1,11 +1,13 @@
-from util import *
+from pygame import event
+import pygame
+import util
 from math import ceil, floor
 import random
 import pygame.draw
 import pygame.gfxdraw
 
 class Star_Manager:
-    
+
     def __init__(self):
         super().__init__()
 
@@ -16,11 +18,11 @@ class Star_Manager:
     def step(self):
 
         # Simple timer functionality
-        if (self.star_timer < get_milli()):
+        if (self.star_timer < util.get_milli()):
             # Do the action
             self.star_list.append(Star())
             # Restart timer
-            self.star_timer = get_milli() + random.randint(1, 2)
+            self.star_timer = util.get_milli() + random.randint(1, 2)
 
         counter = 0
         pop_list = []
@@ -32,18 +34,18 @@ class Star_Manager:
             # Draws the stars appended with half of resolution
             # Not anti-aliased
             if (star.size < 1):
-                pygame.gfxdraw.pixel(mainSurface, *[ int(i + j) for i, j in zip(star.coords, get_middle_res()) ], (255, 255, 255))
+                pygame.gfxdraw.pixel(util.mainSurface, *[ int(i + j) for i, j in zip(star.coords, util.get_middle_res()) ], (255, 255, 255))
             else:
                 # pygame.draw.circle(mainSurface, (255, 255, 255), [ int(i + j) for i, j in zip(star.coords, get_middle_res()) ], ceil(star.size))
-                rect = [ int(i + j) for i, j in zip(star.coords, get_middle_res()) ]
-                pygame.draw.rect(mainSurface, (255, 255, 255), [rect, [ceil(star.size), ceil(star.size)]] )
+                rect = [ int(i + j) for i, j in zip(star.coords, util.get_middle_res()) ]
+                pygame.draw.rect(util.mainSurface, (255, 255, 255), [rect, [ceil(star.size), ceil(star.size)]] )
 
             # Anti-Aliased
             # pygame.gfxdraw.aacircle(mainSurface, *[ int(i + j) for i, j in zip(star.coords, get_middle_res()) ], star.size, (255, 255, 255))
             # pygame.gfxdraw.filled_circle(mainSurface, *[ int(i + j) for i, j in zip(star.coords, get_middle_res()) ], star.size, (255, 255, 255))
 
             # If object is out of bounds, delete it.
-            mid = get_middle_res()
+            mid = util.get_middle_res()
             if (abs(star.coords[0]) > mid[0] or abs(star.coords[1]) > mid[1]):
                 pop_list.append(counter - len(pop_list))
 
@@ -51,6 +53,14 @@ class Star_Manager:
 
         for i in pop_list:
             self.star_list.pop(i)
+
+        # Detects keypress in keyboard to increase speed.
+        for ev in util.events:
+            if (ev.type == pygame.KEYDOWN):
+                if (ev.key == pygame.K_UP):
+                    Star.max_speed += 0.001
+                if (ev.key == pygame.K_DOWN):
+                    Star.max_speed -= 0.001
 
 class Star:
 
@@ -62,8 +72,8 @@ class Star:
         super().__init__()
 
         # Initial Variables
-        mid = get_middle_res()
-        self.coords = [random.randint(-resolution[0]/2, resolution[0]/2), random.randint(-resolution[1]/2, resolution[1]/2)]
+        mid = util.get_middle_res()
+        self.coords = [random.randint(-util.resolution[0]//2, util.resolution[0]//2), random.randint(-util.resolution[1]//2, util.resolution[1]//2)]
         self.size = abs(self.coords[0]/mid[0]) + abs(self.coords[1]/mid[1]) * 5
         self.speed = 1 + Star.min_speed + (random.random() * Star.max_speed)
 
