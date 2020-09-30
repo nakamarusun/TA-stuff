@@ -56,14 +56,17 @@ class Star_Manager:
         # Draws all of the star in the list
         for star in self.star_list:
             # Updates the star function
+            # Updates the coordinates
             star[0] *= star[2]
             star[1] *= star[2]
             star[3] += 0.005
 
             # Draws the stars appended with half of resolution
             # Not anti-aliased
-            rect = [ int(i + j) for i, j in zip([star[0], star[1]], util.get_middle_res()) ]
-            pygame.draw.rect(util.mainSurface, (255, 255, 255), [rect, [ceil(star[3]), ceil(star[3])]] )
+            rect = [ int(i + j) for i, j in zip([star[0], star[1]], mid) ]
+            rect2 = [ int((1.03 * i) + j) for i, j in zip([star[0], star[1]], mid) ]
+            # pygame.draw.rect(util.mainSurface, (255, 255, 255), [rect, [ceil(star[3]), ceil(star[3])]] )
+            pygame.draw.line(util.mainSurface, (255, 255, 255), rect, rect2)
 
             # If object is out of the screen, delete it.
             if (abs(star[0]) > mid[0] or abs(star[1]) > mid[1]):
