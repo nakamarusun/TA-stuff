@@ -9,10 +9,12 @@ def check_zero(func):
 
     return finished
 
+# Recommended way how to use decorator
 @check_zero
 def divide(a, b):
     return a / b
 
+# Alternative way
 def divide2(a, b):
     return a / b
 new_divide = check_zero(divide2)
